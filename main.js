@@ -2,10 +2,7 @@ import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-
-import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 
 
 // Scene Setup
@@ -13,25 +10,18 @@ const container = document.querySelector('#app')
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#F0F0F0')
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
+camera.position.z = 0.2; 
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
-  envMapIntensity: 10,
-  // logarithmicDepthBuffer: true,
 });
 
 THREE.ColorManagement.enabled = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.shadowMap.enabled = true;
-renderer.shadowMapSoft = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = false;
 
 const controls = new OrbitControls( camera, renderer.domElement );
-
-let pngCubeRenderTarget, exrCubeRenderTarget;
-let pngBackground, exrBackground;
-
 
 const handleResize = () => {
   renderer.setSize( window.innerWidth, window.innerHeight );
@@ -43,30 +33,30 @@ window.addEventListener("resize", () => {
   handleResize()
 })
 
-// Load Model
-let model, envMap;
+// SCENE
 
+const sceneGroup = new THREE.Group
 const loader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
-const exrLoader = new EXRLoader();
 
+// Load Model
+let model, envMap;
 
 loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
   model = glb.scene
+
   const meshes = model.children[0].children
-  let cap = meshes[0]
-  let capTop = meshes[1]
-  let labelFront = meshes[2]
-  let logo = meshes[3]
-  let glass = meshes[4]
-  let labelBack = meshes[5]
-  let foil = meshes[6]
-
-  console.log(meshes)
-
+  
+  
+  
+  
+  
+  
+  
 
   // Cap
+  let cap = meshes[0]
   cap.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     color: new THREE.Color('#090909')
@@ -74,6 +64,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
 
   // Cap Top
+  let capTop = meshes[1]
   capTop.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     color: new THREE.Color('#090909'),
@@ -89,6 +80,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   
 
   // Label Front
+  let labelFront = meshes[2]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#232323'),
     normalScale: new THREE.Vector2(0.1, 0.1)
@@ -108,6 +100,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Logo
+  let logo = meshes[3]
   logo.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     metalness: 0,
@@ -115,7 +108,18 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
     normalScale: new THREE.Vector2(0.1, 0.1),
   })
 
+  // Glass
+  let glass = meshes[4]
+  glass.material = new THREE.MeshPhysicalMaterial({ 
+    roughness: 0.01,  
+    transmission: 0.9,  
+    metalness: 0,
+    thickness: 0.25,
+    normalScale: new THREE.Vector2(0.05, 0.05),
+  })
+
   // Label Back
+  let labelBack = meshes[5]
   labelBack.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#191919'),
     normalScale: new THREE.Vector2(0.1, 0.1),
@@ -135,6 +139,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Foil
+  let foil = meshes[6]
   foil.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#090909'),
     normalScale: new THREE.Vector2(0.4, 0.4),
@@ -156,91 +161,47 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
     texture.colorSpace = THREE.SRGBColorSpace
     foil.material.normalMap = texture
   })
-  
-
-  // Glass
-  glass.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.01,  
-    transmission: 0.9,  
-    metalness: 0,
-    thickness: 0.25,
-    clearcoat: 1.0,
-    // ior: 2.0,
-    clearcoatRoughness: 0.01,
-    normalScale: new THREE.Vector2(0.05, 0.05),
-    // side: THREE.DoubleSide
-  })
-
-
-  // Noise Normals
-  textureLoader.load('/textures/Noise_Normal_Map.jpg', (texture) => {
-    texture.flipY = false
-    labelFront.material.normalMap = texture
-    logo.material.normalMap = texture
-    // glass.material.normalMap = texture
-  })
 
   // Environment
   const hdrLoader = new RGBELoader;
   hdrLoader.load('/env.hdr', (texture) => {
 
     texture.mapping = THREE.EquirectangularReflectionMapping;
-
-    // scene.background = texture
     texture.colorSpace = THREE.SRGBColorSpace
     envMap = texture
     meshes.forEach((mesh) => {
       mesh.material.envMap = envMap
       mesh.material.envMapIntensity = 0.6
-      mesh.material.needUpdate = true
+      // mesh.material.needUpdate = true
     })
   })
 
-  glb.scene.position.y = -0.06;
-  scene.add( glb.scene );
+  sceneGroup.add(model)
+  sceneGroup.position.y = -0.06;
 
 }, undefined, function ( error ) {
 	console.error( error );
 } );
 
+// Lights
 const spotLight = new THREE.SpotLight( 0xffffff );
 spotLight.position.set( 1, 1, 1 );
 spotLight.lookAt(0, 0, 0)
 spotLight.intensity = 10
-// spotLight.castShadow = true;
 spotLight.angle = Math.PI / 4
 
 const backLight = new THREE.SpotLight( 0xffffff );
 backLight.position.set( -1, 1, -1 );
 backLight.lookAt(0, 0, 0)
 backLight.intensity = 10
-// backLight.castShadow = true;
 backLight.angle = Math.PI / 4
 
+scene.add( sceneGroup, spotLight, backLight );
 
-scene.add( spotLight, backLight );
-
-
-
-// const width = 10;
-// const height = 10;
-// const intensity = 0;
-// const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
-// rectLight.position.set( 0, 3, 0 );
-// rectLight.lookAt( 0, 0, 0 );
-// scene.add( rectLight )
-
-// const rectLightHelper = new RectAreaLightHelper( rectLight )
-// scene.add( rectLightHelper )
-
-camera.position.z = 0.2; 
-
+// Animate
 function animate() {
 
-  // if (model) model.rotation.y += 0.01
-
   controls.update();
-
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 }
