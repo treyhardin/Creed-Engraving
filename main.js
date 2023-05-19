@@ -48,13 +48,6 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
   const meshes = model.children[0].children
   
-  
-  
-  
-  
-  
-  
-
   // Cap
   let cap = meshes[0]
   cap.material = new THREE.MeshPhysicalMaterial({ 
@@ -68,8 +61,6 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   capTop.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     color: new THREE.Color('#090909'),
-    // specularColor: 0xE7E7E7,
-    // specularIntensity: 0.5,
   })
 
   textureLoader.load('textures/T_Material_001_N.jpg', (texture) => {
@@ -78,12 +69,13 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
     capTop.material.normalMap= texture
   })
   
-
   // Label Front
   let labelFront = meshes[2]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#232323'),
-    normalScale: new THREE.Vector2(0.1, 0.1)
+    normalScale: new THREE.Vector2(0.1, 0.1),
+    envMap: envMap,
+    envMapIntensity: 0.6,
   })
 
   textureLoader.load('textures/T_AVENTUS_HOURSE_B.jpg', (texture) => {
@@ -99,6 +91,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
     labelFront.material.metalnessMap = texture
   })
 
+
   // Logo
   let logo = meshes[3]
   logo.material = new THREE.MeshPhysicalMaterial({ 
@@ -112,7 +105,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   let glass = meshes[4]
   glass.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.01,  
-    transmission: 0.9,  
+    transmission: 0.95,  
     metalness: 0,
     thickness: 0.25,
     normalScale: new THREE.Vector2(0.05, 0.05),
@@ -171,7 +164,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
     envMap = texture
     meshes.forEach((mesh) => {
       mesh.material.envMap = envMap
-      mesh.material.envMapIntensity = 0.6
+      mesh.material.envMapIntensity = 0.8
       // mesh.material.needUpdate = true
     })
   })
@@ -185,16 +178,26 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
 // Lights
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 1, 1, 1 );
+spotLight.position.set( 1, 0.3, 1 );
 spotLight.lookAt(0, 0, 0)
-spotLight.intensity = 10
+spotLight.intensity = 15
 spotLight.angle = Math.PI / 4
 
 const backLight = new THREE.SpotLight( 0xffffff );
-backLight.position.set( -1, 1, -1 );
-backLight.lookAt(0, 0, 0)
-backLight.intensity = 10
-backLight.angle = Math.PI / 4
+backLight.position.set( -0.4, 0.8, -1 );
+backLight.lookAt(0, 0, -0.12)
+backLight.intensity = 20
+backLight.angle = Math.PI / 3
+
+// const spotHelper = new THREE.SpotLightHelper(backLight)
+// scene.add(spotHelper)
+
+// const pointLight = new THREE.PointLight( 0xffffff );
+// pointLight.position.set( -0.5, 0.1, -1.5 );
+// backLight.intensity = 500
+
+// const helper = new THREE.PointLightHelper(pointLight)
+// scene.add(helper)
 
 scene.add( sceneGroup, spotLight, backLight );
 
