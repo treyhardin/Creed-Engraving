@@ -1,16 +1,18 @@
 import './style.css'
 import * as THREE from 'three';
-// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
-// import creedModel from './public/'
+import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+
 
 // Scene Setup
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#F0F0F0')
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 2 );
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -20,11 +22,15 @@ const renderer = new THREE.WebGLRenderer({
 
 THREE.ColorManagement.enabled = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const controls = new OrbitControls( camera, renderer.domElement );
+
+let pngCubeRenderTarget, exrCubeRenderTarget;
+let pngBackground, exrBackground;
 
 
 const handleResize = () => {
@@ -38,10 +44,11 @@ window.addEventListener("resize", () => {
 })
 
 // Load Model
-let model;
+let model, envMap;
 
 const loader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
+const exrLoader = new EXRLoader();
 
 
 loader.load( '/CreedBottle_Optimized.glb', (glb) => {
@@ -57,6 +64,7 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
   let foil = meshes[6]
 
   console.log(meshes)
+
 
   // Cap
   cap.material = new THREE.MeshPhysicalMaterial({ 
@@ -130,6 +138,9 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
   foil.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#090909'),
     normalScale: new THREE.Vector2(1.0, 1.0),
+    roughness: 2,
+    metalness: 0
+    // envMapIntensity: 20,
   })
 
   textureLoader.load('/textures/T_Material_001_MRA.png', (texture) => {
@@ -151,7 +162,7 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
     roughness: 0.01,  
     transmission: 1,  
     metalness: 0,
-    thickness: 0.5,
+    thickness: 0.25,
     clearcoat: 1.0,
     // ior: 2.0,
     clearcoatRoughness: 0.01,
@@ -168,6 +179,23 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
     // glass.material.normalMap = texture
   })
 
+    // Environment
+    const hdrLoader = new RGBELoader;
+    hdrLoader.load('/env.hdr', (texture) => {
+  
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+  
+      // scene.background = texture
+      texture.colorSpace = THREE.SRGBColorSpace
+      envMap = texture
+      meshes.forEach((mesh) => {
+        mesh.material.envMap = envMap
+        mesh.material.envMapIntensity = 0.8
+      })
+    })
+
+
+
   cap.material.needUpdate = true
   capTop.material.needUpdate = true
   labelFront.material.needUpdate = true
@@ -176,16 +204,7 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
   labelBack.material.needUpdate = true
   foil.material.needUpdate = true
 
-  // Environment
-  textureLoader.load('/env.hdr', (texture) => {
-    scene.environment = texture
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    meshes.forEach((mesh) => {
-      mesh.material.envMap = texture
-      mesh.material.envMapIntensity = 1.5
-    })
-  })
+
 
   glb.scene.position.y = -0.06;
   scene.add( glb.scene );
@@ -206,29 +225,37 @@ loader.load( '/CreedBottle_Optimized.glb', (glb) => {
 // scene.add(ambientLight)
 
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 0, 3, 3 );
+spotLight.position.set( 1, 1, 1 );
 spotLight.lookAt(0, 0, 0)
 spotLight.intensity = 10
 
 spotLight.castShadow = true;
 
+spotLight.angle = Math.PI / 5
+
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
 
 spotLight.shadow.camera.near = 1;
-spotLight.shadow.camera.far = 4000;
-spotLight.shadow.camera.fov = 10;
+spotLight.shadow.camera.far = 400;
+spotLight.shadow.camera.fov = 30;
 
 scene.add( spotLight );
 
-// const width = 100;
-// const height = 100;
-// const intensity = 100;
-// const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
-// rectLight.position.set( 5, 5, 0 );
-// rectLight.lookAt( 0, 0, 0 );
-// scene.add( rectLight )
+// const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+// scene.add( spotLightHelper );
 
+
+const width = 10;
+const height = 10;
+const intensity = 0;
+const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
+rectLight.position.set( 0, 3, 0 );
+rectLight.lookAt( 0, 0, 0 );
+scene.add( rectLight )
+
+// const rectLightHelper = new RectAreaLightHelper( rectLight )
+// scene.add( rectLightHelper )
 
 camera.position.z = 0.2; 
 
