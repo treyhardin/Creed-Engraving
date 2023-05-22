@@ -58,6 +58,7 @@ const renderer = new THREE.WebGLRenderer({
   },
   lookAt: (0, 0, 0)
 });
+renderer.setPixelRatio(window.devicePixelRatio)
 
 // Controls
 const controls = new OrbitControls( camera, renderer.domElement );
@@ -84,9 +85,6 @@ window.addEventListener("resize", () => {
 })
 
 
-
-
-
 // Loading Manager
 const preloader = document.querySelector('#preloader')
 const progress = document.querySelector('#progress')
@@ -106,20 +104,14 @@ const loader = new GLTFLoader(loadingManager);
 const textureLoader = new THREE.TextureLoader(loadingManager);
 const dracoLoader = new DRACOLoader(loadingManager);
 dracoLoader.setDecoderPath( 'draco/gltf/' );
-// dracoLoader.setDecoderPath(
-//   'https://cdn.jsdelivr.net/npm/three@0.139/examples/js/libs/draco/gltf/'
-// );
 dracoLoader.preload();
 loader.setDRACOLoader(dracoLoader);
 const hdrLoader = new RGBELoader(loadingManager);
 
 
-// SCENE
-const sceneGroup = new THREE.Group
-
-
 // Load Model
 let model, envMap;
+const sceneGroup = new THREE.Group
 
 loader.load('/aventus.glb', (glb) => {
 
@@ -154,10 +146,10 @@ loader.load('/aventus.glb', (glb) => {
   // Label Front
   let labelFront = meshes[1]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#555555'),
+    color: new THREE.Color('#f0f0f0'),
     normalScale: new THREE.Vector2(0.1, 0.1),
-    metalness: 0.9,
-    envMapIntensity: 0.6,
+    metalness: 0.95,
+    roughness: 0.01,
   })
 
   textureLoader.load('textures/T_AVENTUS_HOURSE_B.jpg', (texture) => {
@@ -330,8 +322,8 @@ engravingFont.addEventListener("change", () => {
 
 const updateText = (text, line, positionY) => {
 
+  let mesh
   currentFont = engravingFont.value
-  let textGeometry, mesh
 
   if (line == 1 && textMeshLine1) {
     scene.remove(textMeshLine1)
@@ -365,7 +357,7 @@ const updateText = (text, line, positionY) => {
 
     mesh.position.x = center.x
     mesh.position.y = positionY
-    mesh.position.z = -0.0125
+    mesh.position.z = -0.014
     mesh.rotateY(Math.PI)
 
     scene.add(mesh)
