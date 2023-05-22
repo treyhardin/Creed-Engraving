@@ -91,8 +91,9 @@ loader.load('/aventus.glb', (glb) => {
   // Cap
   let cap = meshes[6]
   cap.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.0173,
-    color: new THREE.Color('#090909')
+    roughness: 0.02,
+    // color: new THREE.Color('#090909')
+    color: new THREE.Color('#020202')
   })
 
 
@@ -148,7 +149,7 @@ loader.load('/aventus.glb', (glb) => {
     // color: new THREE.Color('#f6f6f6'),
     roughness: 0.05,  
     // transmission: 0.95,
-    transmission: 1,  
+    transmission: 0.999,  
     metalness: 0,
     // thickness: 0.01,
     normalScale: new THREE.Vector2(0.05, 0.05),
