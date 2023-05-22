@@ -124,16 +124,17 @@ loader.load('/aventus.glb', (glb) => {
   // Cap
   let cap = meshes[6]
   cap.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.02,
-    // color: new THREE.Color('#090909')
-    color: new THREE.Color('#020202')
+    roughness: 0.2,
+    metalness: 0.8,
+    color: new THREE.Color('#000000')
+    // color: new THREE.Color('#1C1C1C')
   })
 
 
   // Cap Top
   let capTop = meshes[5]
   capTop.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.0173,
+    roughness: 0.2,
     color: new THREE.Color('#090909'),
   })
 
@@ -244,7 +245,7 @@ loader.load('/aventus.glb', (glb) => {
     envMap = texture
     meshes.forEach((mesh) => {
       mesh.material.envMap = envMap
-      mesh.material.envMapIntensity = 0.4
+      mesh.material.envMapIntensity = 1
     })
   })
 
@@ -259,13 +260,15 @@ loader.load('/aventus.glb', (glb) => {
 const spotLight = new THREE.SpotLight( 0xffffff );
 spotLight.position.set( 1, 0.6, 1 );
 spotLight.lookAt(-0.2, -0.6, 0)
-spotLight.intensity = 15
+// spotLight.intensity = 15
+spotLight.intensity = 5
 spotLight.angle = Math.PI / 4
 
 const backLight = new THREE.SpotLight( 0xffffff );
 backLight.position.set( -0.4, 0.5, -0.5 );
-backLight.lookAt(0, 0, -0.5)
-backLight.intensity = 20
+backLight.lookAt(0, 0, -2.5)
+// backLight.intensity = 20
+backLight.intensity = 10
 backLight.angle = Math.PI / 8
 
 // const ambientLight = new THREE.AmbientLight( 0xffffff );
@@ -291,9 +294,6 @@ let currentFont
 textMaterial = new THREE.MeshBasicMaterial({
   color: new THREE.Color('white'),
 })
-
-
-
 
 // Update Engraving
 const updateLine1 = () => {
