@@ -78,7 +78,7 @@ const handleResize = () => {
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-document.addEventListener('focusout', handleResize)
+// document.addEventListener('focusout', handleResize)
 
 handleResize();
 
