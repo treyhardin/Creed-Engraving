@@ -3,8 +3,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+// import * as dracoDecoder from 'three/examples/jsm/libs/draco/draco_decoder'
 
 
 // Scene Setup
@@ -39,23 +42,54 @@ window.addEventListener("resize", () => {
   handleResize()
 })
 
-// SCENE
 
+
+
+
+// Loading Manager
+const preloader = document.querySelector('#preloader')
+const progress = document.querySelector('#progress')
+
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+  const progressPercentage = itemsLoaded / itemsTotal
+  progress.style.width = progressPercentage * 100 + '%'
+};
+loadingManager.onLoad = function ( ) {
+	preloader.classList.add('hidden')
+};
+
+// Loaders
+const loader = new GLTFLoader(loadingManager);
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const dracoLoader = new DRACOLoader(loadingManager);
+dracoLoader.setDecoderPath( 'draco/gltf/' );
+// dracoLoader.setDecoderPath(
+//   'https://cdn.jsdelivr.net/npm/three@0.139/examples/js/libs/draco/gltf/'
+// );
+dracoLoader.preload();
+loader.setDRACOLoader(dracoLoader);
+const hdrLoader = new RGBELoader(loadingManager);
+
+
+// SCENE
 const sceneGroup = new THREE.Group
-const loader = new GLTFLoader();
-const textureLoader = new THREE.TextureLoader();
+
 
 // Load Model
 let model, envMap;
 
-loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
+loader.load('/aventus.glb', (glb) => {
+
+  console.log(glb)
 
   model = glb.scene
 
   const meshes = model.children[0].children
   
   // Cap
-  let cap = meshes[0]
+  let cap = meshes[6]
   cap.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     color: new THREE.Color('#090909')
@@ -63,7 +97,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
 
   // Cap Top
-  let capTop = meshes[1]
+  let capTop = meshes[5]
   capTop.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     color: new THREE.Color('#090909'),
@@ -76,12 +110,11 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
   
   // Label Front
-  let labelFront = meshes[2]
+  let labelFront = meshes[1]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#555555'),
     normalScale: new THREE.Vector2(0.1, 0.1),
     metalness: 0.9,
-    envMap: envMap,
     envMapIntensity: 0.6,
   })
 
@@ -100,7 +133,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
 
   // Logo
-  let logo = meshes[3]
+  let logo = meshes[2]
   logo.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.4,
     metalness: 0.9,
@@ -110,7 +143,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Glass
-  let glass = meshes[4]
+  let glass = meshes[0]
   glass.material = new THREE.MeshPhysicalMaterial({ 
     // color: new THREE.Color('#f6f6f6'),
     roughness: 0.05,  
@@ -122,7 +155,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Label Back
-  let labelBack = meshes[5]
+  let labelBack = meshes[3]
   labelBack.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#232323'),
     normalScale: new THREE.Vector2(0.1, 0.1),
@@ -142,7 +175,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Foil
-  let foil = meshes[6]
+  let foil = meshes[4]
   foil.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#090909'),
     normalScale: new THREE.Vector2(0.4, 0.4),
@@ -166,21 +199,23 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   })
 
   // Environment
-  const hdrLoader = new RGBELoader;
-  hdrLoader.load('/env.hdr', (texture) => {
+  
+  hdrLoader.load('/env_christmas.hdr', (texture) => {
 
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.SRGBColorSpace
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.magFilter = THREE.NearestFilter
     envMap = texture
     meshes.forEach((mesh) => {
       mesh.material.envMap = envMap
-      mesh.material.envMapIntensity = 0.8
-      // mesh.material.needUpdate = true
+      mesh.material.envMapIntensity = 0.4
     })
   })
 
   sceneGroup.add(model)
-  sceneGroup.position.y = -0.06;
+  // sceneGroup.position.y = -0.06;
 
 }, undefined, function ( error ) {
 	console.error( error );
@@ -194,7 +229,7 @@ spotLight.intensity = 15
 spotLight.angle = Math.PI / 4
 
 const backLight = new THREE.SpotLight( 0xffffff );
-backLight.position.set( -0.4, 0.8, -0.2 );
+backLight.position.set( -0.4, 0.5, -0.5 );
 backLight.lookAt(0, 0, -0.5)
 backLight.intensity = 20
 backLight.angle = Math.PI / 8
@@ -208,11 +243,9 @@ backLight.angle = Math.PI / 8
 
 scene.add( sceneGroup, spotLight, backLight );
 
-// Update 
 
 // Update Engraving
-const updateEngraving = (text) => {
-  console.log(event)
+const updateEngraving = () => {
   loadFont()
 }
 
@@ -230,11 +263,11 @@ textMaterial = new THREE.MeshBasicMaterial({
 })
 
 const updateLine1 = () => {
-  updateText(engravingTextLine1.value, 1, 0.016)
+  updateText(engravingTextLine1.value, 1, 0.02)
 }
 
 const updateLine2 = () => {
-  updateText(engravingTextLine2.value, 2, 0.01)
+  updateText(engravingTextLine2.value, 2, 0.014)
 }
 
 // Live Text Input
@@ -293,7 +326,7 @@ const updateText = (text, line, positionY) => {
 
     mesh.position.x = center.x
     mesh.position.y = positionY
-    mesh.position.z = -0.02
+    mesh.position.z = -0.0125
     mesh.rotateY(Math.PI)
 
     scene.add(mesh)
