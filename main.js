@@ -337,14 +337,9 @@ const updateText = (text, line, positionY) => {
     scene.remove(textMeshLine1)
   }
 
-  if (line == 1 && textMeshLine1) {
-    scene.remove(textMeshLine1)
-  }
-
-  if (textMeshLine2 && textMeshLine2) {
+  if (line == 2 && textMeshLine2) {
     scene.remove(textMeshLine2)
   }
-
 
   const createTextGeometry = (font, mesh) => {
 
