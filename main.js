@@ -137,6 +137,12 @@ loader.load('/aventus.glb', (glb) => {
     roughness: 0.2,
     color: new THREE.Color('#090909'),
   })
+
+  textureLoader.load('textures/logo_NORMAL.png', (texture) => {
+    texture.flipY = false
+    texture.colorSpace = THREE.SRGBColorSpace
+    capTop.material.normalMap = texture
+  })
   
   // Label Front
   let labelFront = meshes[1]
