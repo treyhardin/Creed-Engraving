@@ -148,8 +148,8 @@ loader.load('/aventus.glb', (glb) => {
   let labelFront = meshes[1]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#f0f0f0'),
-    normalScale: new THREE.Vector2(0.1, 0.1),
-    metalness: 0.95,
+    normalScale: new THREE.Vector2(0.2, 0.2),
+    metalness: 0.98,
     roughness: 0.01,
   })
 
@@ -217,7 +217,6 @@ loader.load('/aventus.glb', (glb) => {
     roughness: 5,
     metalness: 1,
     side: THREE.DoubleSide
-    // envMapIntensity: 20,
   })
 
   textureLoader.load('/textures/T_Material_001_MRA.jpg', (texture) => {
