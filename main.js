@@ -16,9 +16,10 @@ THREE.ColorManagement.enabled = true;
 
 // Camera
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
-camera.position.set(0, 0, 0.2);
+
+camera.position.set(-0.07, 0, 0.2);
 camera.rotation.x = 0;
-let cameraTarget = new THREE.Vector3(0, 0, 0.2);
+let cameraTarget = new THREE.Vector3(0.07, 0, 0.2);
 let cameraLocked = false;
 
 // Toggle Preview
@@ -32,7 +33,7 @@ const lockCamera = () => {
 }
 
 const unlockCamera = () => {
-  cameraTarget = new THREE.Vector3(0, 0, 0.2);
+  cameraTarget = new THREE.Vector3(-0.07, 0, 0.2);
   controls.enabled = true;
   previewButton.innerHTML = 'Preview'
   setTimeout(() => {
@@ -235,7 +236,7 @@ loader.load('/aventus.glb', (glb) => {
 
   // Environment
   
-  hdrLoader.load('/env_christmas.hdr', (texture) => {
+  hdrLoader.load('/env_studio.hdr', (texture) => {
 
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.colorSpace = THREE.SRGBColorSpace
