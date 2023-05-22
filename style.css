@@ -14,3 +14,16 @@ body {
   min-width: 100%;
   min-height: 100%;
 }
+
+.engraving-options {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  translate: -50%;
+}
+
+#engraving-font {
+}
+
+#engraving-text {
+}

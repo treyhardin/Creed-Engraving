@@ -3,12 +3,15 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 
 // Scene Setup
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#F0F0F0')
+// scene.background = new THREE.Color('#000000')
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
 camera.position.z = 0.2; 
 
@@ -24,6 +27,9 @@ renderer.shadowMap.enabled = false;
 const controls = new OrbitControls( camera, renderer.domElement );
 
 const handleResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
@@ -72,8 +78,9 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   // Label Front
   let labelFront = meshes[2]
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#232323'),
+    color: new THREE.Color('#555555'),
     normalScale: new THREE.Vector2(0.1, 0.1),
+    metalness: 0.9,
     envMap: envMap,
     envMapIntensity: 0.6,
   })
@@ -97,7 +104,8 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   logo.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.0173,
     metalness: 0,
-    color: new THREE.Color('#191919'),
+    // color: new THREE.Color('#191919'),
+    color: new THREE.Color('#000000'),
     normalScale: new THREE.Vector2(0.1, 0.1),
   })
 
@@ -105,7 +113,8 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   let glass = meshes[4]
   glass.material = new THREE.MeshPhysicalMaterial({ 
     roughness: 0.01,  
-    transmission: 0.95,  
+    // transmission: 0.95,
+    transmission: 0.999,  
     metalness: 0,
     thickness: 0.25,
     normalScale: new THREE.Vector2(0.05, 0.05),
@@ -114,7 +123,7 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   // Label Back
   let labelBack = meshes[5]
   labelBack.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#191919'),
+    color: new THREE.Color('#232323'),
     normalScale: new THREE.Vector2(0.1, 0.1),
   })
 
@@ -178,8 +187,8 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
 
 // Lights
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 1, 0.3, 1 );
-spotLight.lookAt(0, 0, 0)
+spotLight.position.set( 1, 0.6, 1 );
+spotLight.lookAt(-0.2, -0.6, 0)
 spotLight.intensity = 15
 spotLight.angle = Math.PI / 4
 
@@ -189,17 +198,137 @@ backLight.lookAt(0, 0, -0.12)
 backLight.intensity = 20
 backLight.angle = Math.PI / 3
 
-// const spotHelper = new THREE.SpotLightHelper(backLight)
+// const spotHelper = new THREE.SpotLightHelper(spotLight)
 // scene.add(spotHelper)
 
-// const pointLight = new THREE.PointLight( 0xffffff );
-// pointLight.position.set( -0.5, 0.1, -1.5 );
-// backLight.intensity = 500
-
-// const helper = new THREE.PointLightHelper(pointLight)
-// scene.add(helper)
-
 scene.add( sceneGroup, spotLight, backLight );
+
+// Update 
+
+// Update Engraving
+const updateEngraving = (text) => {
+  console.log(event)
+  loadFont()
+}
+
+// Load Font
+const fontLoader = new FontLoader();
+
+let calibriFont, garamondFont, carattereFont
+let textMaterial
+let textMeshLine1, textMeshLine2
+let currentFont
+
+// Text Material
+textMaterial = new THREE.MeshBasicMaterial({
+  color: new THREE.Color('white'),
+})
+
+const updateLine1 = () => {
+  updateText(engravingTextLine1.value, 1, 0.016)
+}
+
+const updateLine2 = () => {
+  updateText(engravingTextLine2.value, 2, 0.01)
+}
+
+// Live Text Input
+const engravingTextLine1 = document.querySelector('#engraving-text-line1')
+engravingTextLine1.addEventListener("input", updateLine1)
+
+const engravingTextLine2 = document.querySelector('#engraving-text-line2')
+engravingTextLine2.addEventListener("input", updateLine2)
+
+// Live Text Font
+const engravingFont = document.querySelector('#engraving-font')
+engravingFont.addEventListener("change", () => { 
+  updateLine1() 
+  updateLine2() 
+})
+
+const updateText = (text, line, positionY) => {
+
+  currentFont = engravingFont.value
+  let textGeometry, mesh
+
+  if (line == 1 && textMeshLine1) {
+    scene.remove(textMeshLine1)
+  }
+
+  if (line == 1 && textMeshLine1) {
+    scene.remove(textMeshLine1)
+  }
+
+  if (textMeshLine2 && textMeshLine2) {
+    scene.remove(textMeshLine2)
+  }
+
+
+  const createTextGeometry = (font, mesh) => {
+
+    const textGeometry = new TextGeometry( text, {
+      font: font,
+      size: 0.004,
+      height: 0.0001,
+      curveSegments: 12,
+    } );
+
+    if (line == 1) {
+      textMeshLine1 = mesh = new THREE.Mesh(textGeometry, textMaterial)
+      mesh = textMeshLine1
+    }
+
+    if (line == 2) {
+      textMeshLine2 = mesh = new THREE.Mesh(textGeometry, textMaterial)
+      mesh = textMeshLine2
+    }
+
+    textGeometry.computeBoundingBox();
+    const center = textGeometry.boundingBox.getCenter(new THREE.Vector3());
+
+    mesh.position.x = center.x
+    mesh.position.y = positionY
+    mesh.position.z = -0.02
+    mesh.rotateY(Math.PI)
+
+    scene.add(mesh)
+  }
+
+  if (currentFont == 'garamond' && !garamondFont) {
+    fontLoader.load( '/fonts/Garamond_Regular.json', function ( font ) {
+      createTextGeometry(font, mesh)
+      garamondFont = font
+    } );
+  }
+
+  if (currentFont == 'calibri' && !calibriFont) {
+    fontLoader.load( '/fonts/Calibri_Regular.json', function ( font ) {
+      createTextGeometry(font, mesh)
+      calibriFont = font
+    } );
+  }
+
+  if (currentFont == 'carattere' && !carattereFont) {
+    fontLoader.load( '/fonts/Carattere_Regular.json', function ( font ) {
+      createTextGeometry(font, mesh)
+      carattereFont = font
+    } );
+  }
+
+  if (currentFont == 'garamond' && garamondFont) {
+    createTextGeometry(garamondFont, mesh)
+  }
+
+  if (currentFont == 'calibri' && calibriFont) {
+    createTextGeometry(calibriFont, mesh)
+  }
+
+  if (currentFont == 'carattere' && carattereFont) {
+    createTextGeometry(carattereFont, mesh)
+  }
+
+}
+
 
 // Animate
 function animate() {
