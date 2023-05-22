@@ -137,12 +137,6 @@ loader.load('/aventus.glb', (glb) => {
     roughness: 0.2,
     color: new THREE.Color('#090909'),
   })
-
-  textureLoader.load('textures/T_Material_001_N.jpg', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    capTop.material.normalMap= texture
-  })
   
   // Label Front
   let labelFront = meshes[1]
@@ -226,10 +220,11 @@ loader.load('/aventus.glb', (glb) => {
     foil.material.metalnessMap = texture
   })
 
-  textureLoader.load('/textures/T_Material_N.jpg', (texture) => {
+  textureLoader.load('/textures/T_Material_001_N.png', (texture) => {
     texture.flipY = false
     texture.colorSpace = THREE.SRGBColorSpace
     foil.material.normalMap = texture
+    capTop.material.normalMap= texture
   })
 
   // Environment
