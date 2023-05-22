@@ -10,8 +10,8 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 // Scene Setup
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#F0F0F0')
-// scene.background = new THREE.Color('#000000')
+// scene.background = new THREE.Color('#F0F0F0')
+scene.background = new THREE.Color('#000000')
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
 camera.position.z = 0.2; 
 
@@ -102,8 +102,8 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   // Logo
   let logo = meshes[3]
   logo.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.0173,
-    metalness: 0,
+    roughness: 0.4,
+    metalness: 0.9,
     // color: new THREE.Color('#191919'),
     color: new THREE.Color('#000000'),
     normalScale: new THREE.Vector2(0.1, 0.1),
@@ -112,11 +112,12 @@ loader.load( '/CreedBottle_Optimized_NoTexture.glb', (glb) => {
   // Glass
   let glass = meshes[4]
   glass.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.01,  
+    // color: new THREE.Color('#f6f6f6'),
+    roughness: 0.05,  
     // transmission: 0.95,
-    transmission: 0.999,  
+    transmission: 1,  
     metalness: 0,
-    thickness: 0.25,
+    // thickness: 0.01,
     normalScale: new THREE.Vector2(0.05, 0.05),
   })
 
@@ -193,12 +194,16 @@ spotLight.intensity = 15
 spotLight.angle = Math.PI / 4
 
 const backLight = new THREE.SpotLight( 0xffffff );
-backLight.position.set( -0.4, 0.8, -1 );
-backLight.lookAt(0, 0, -0.12)
+backLight.position.set( -0.4, 0.8, -0.2 );
+backLight.lookAt(0, 0, -0.5)
 backLight.intensity = 20
-backLight.angle = Math.PI / 3
+backLight.angle = Math.PI / 8
 
-// const spotHelper = new THREE.SpotLightHelper(spotLight)
+// const ambientLight = new THREE.AmbientLight( 0xffffff );
+// ambientLight.intensity = 20
+
+
+// const spotHelper = new THREE.SpotLightHelper(backLight)
 // scene.add(spotHelper)
 
 scene.add( sceneGroup, spotLight, backLight );
