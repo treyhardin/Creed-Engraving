@@ -3,32 +3,73 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-// import * as dracoDecoder from 'three/examples/jsm/libs/draco/draco_decoder'
 
-
-// Scene Setup
+// Scene
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
 // scene.background = new THREE.Color('#F0F0F0')
 scene.background = new THREE.Color('#000000')
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
-camera.position.z = 0.2; 
+THREE.ColorManagement.enabled = true;
 
+// Camera
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
+camera.position.set(0, 0, 0.2);
+camera.rotation.x = 0;
+let cameraTarget = new THREE.Vector3(0, 0, 0.2);
+let cameraLocked = false;
+
+// Toggle Preview
+const previewButton = document.querySelector('#preview-button')
+
+const lockCamera = () => {
+  cameraLocked = true;
+  cameraTarget = new THREE.Vector3(-0.02, -0.01, -0.09);
+  controls.enabled = false;
+  previewButton.innerHTML = 'Exit'
+}
+
+const unlockCamera = () => {
+  cameraTarget = new THREE.Vector3(0, 0, 0.2);
+  controls.enabled = true;
+  previewButton.innerHTML = 'Preview'
+  setTimeout(() => {
+    cameraLocked = false
+  }, 1000)
+}
+
+const handlePreviewClick = () => {
+  cameraLocked ? unlockCamera() : lockCamera()
+}
+
+previewButton.addEventListener("click", handlePreviewClick)
+
+// Renderer
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
+  toneMapping: THREE.ACESFilmicToneMapping,
+  powerPreference: "high-performance",
+  outputColorSpace: THREE.SRGBColorSpace,
+  logarithmicDepthBuffer: true,
+  shadowMap: {
+    enabled: false,
+  },
+  lookAt: (0, 0, 0)
 });
 
-THREE.ColorManagement.enabled = true;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.shadowMap.enabled = false;
-
+// Controls
 const controls = new OrbitControls( camera, renderer.domElement );
+controls.enableZoom = false;
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.maxPolarAngle = Math.PI / 2
+controls.minPolarAnge = 0
 
+
+
+// Resize
 const handleResize = () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -245,10 +286,6 @@ backLight.angle = Math.PI / 8
 scene.add( sceneGroup, spotLight, backLight );
 
 
-// Update Engraving
-const updateEngraving = () => {
-  loadFont()
-}
 
 // Load Font
 const fontLoader = new FontLoader();
@@ -263,11 +300,17 @@ textMaterial = new THREE.MeshBasicMaterial({
   color: new THREE.Color('white'),
 })
 
+
+
+
+// Update Engraving
 const updateLine1 = () => {
+  lockCamera()
   updateText(engravingTextLine1.value, 1, 0.02)
 }
 
 const updateLine2 = () => {
+  lockCamera()
   updateText(engravingTextLine2.value, 2, 0.014)
 }
 
@@ -368,13 +411,20 @@ const updateText = (text, line, positionY) => {
 
 }
 
+const animateCamera = () => {
+
+}
 
 // Animate
 function animate() {
 
+  if (cameraLocked) {
+    camera.position.lerp(cameraTarget, 0.1);
+  }
+  
   controls.update();
-	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
+	requestAnimationFrame( animate );
 }
 animate();
 
