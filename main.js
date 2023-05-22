@@ -10,16 +10,15 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 // Scene
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
-// scene.background = new THREE.Color('#F0F0F0')
 scene.background = new THREE.Color('#000000')
 THREE.ColorManagement.enabled = true;
 
 // Camera
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
 
-camera.position.set(-0.07, 0, 0.2);
+camera.position.set(0, 0, 0.2);
 camera.rotation.x = 0;
-let cameraTarget = new THREE.Vector3(0.07, 0, 0.2);
+let cameraTarget = new THREE.Vector3(0, 0, 0.2);
 let cameraLocked = false;
 
 // Toggle Preview
@@ -33,7 +32,7 @@ const lockCamera = () => {
 }
 
 const unlockCamera = () => {
-  cameraTarget = new THREE.Vector3(-0.07, 0, 0.2);
+  cameraTarget = new THREE.Vector3(0, 0, 0.2);
   controls.enabled = true;
   previewButton.innerHTML = 'Preview'
   setTimeout(() => {
@@ -116,8 +115,6 @@ const sceneGroup = new THREE.Group
 
 loader.load('/aventus.glb', (glb) => {
 
-  console.log(glb)
-
   model = glb.scene
 
   const meshes = model.children[0].children
@@ -150,8 +147,8 @@ loader.load('/aventus.glb', (glb) => {
   labelFront.material = new THREE.MeshPhysicalMaterial({ 
     color: new THREE.Color('#f0f0f0'),
     normalScale: new THREE.Vector2(0.2, 0.2),
-    metalness: 0.98,
-    roughness: 0.01,
+    metalness: 1,
+    roughness: 0.1,
   })
 
   textureLoader.load('textures/T_AVENTUS_HOURSE_B.jpg', (texture) => {
@@ -160,7 +157,7 @@ loader.load('/aventus.glb', (glb) => {
     labelFront.material.map = texture
   })
 
-  textureLoader.load('/textures/T_AVENTUS_HOURSE_MRA.jpg', (texture) => {
+  textureLoader.load('/textures/T_AVENTUS_HOURSE_MRA.png', (texture) => {
     texture.flipY = false
     texture.colorSpace = THREE.SRGBColorSpace
     labelFront.material.roughnessMap = texture
