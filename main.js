@@ -65,7 +65,7 @@ renderer.setPixelRatio(window.devicePixelRatio)
 
 // Controls
 const controls = new OrbitControls( camera, renderer.domElement );
-// controls.enableZoom = false;
+controls.enableZoom = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI / 1.5
@@ -166,6 +166,7 @@ loader.load('/Aventus_Baked.glb', (glb) => {
 
     // Glass
     glass.material = new THREE.MeshPhysicalMaterial({ 
+      // side: THREE.DoubleSide,
       roughness: 0.05,
       transmission: 0.999,
       metalness: 0,
@@ -182,7 +183,7 @@ loader.load('/Aventus_Baked.glb', (glb) => {
 
     bottle.material.envMap = envMap
     glass.material.envMap = envMap
-    bottle.material.envMapIntensity = 0.025
+    bottle.material.envMapIntensity = 0.2
     // glass.material.envMapIntensity = 0.5
 
     bottle.material.needsUpdate = true
@@ -310,28 +311,36 @@ loader.load('/Aventus_Baked.glb', (glb) => {
 } );
 
 // Lights
+const spotLightTarget = new THREE.Object3D()
+spotLightTarget.position.set(-0.1, 0, 0)
+
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 1, 1, 1 );
-spotLight.lookAt(-0.1, 0.5, 0)
-// spotLight.intensity = 15
-spotLight.intensity = 0.75
-spotLight.angle = Math.PI / 8
+spotLight.position.set( 0.2, 0.2, 0.2 );
+spotLight.target = spotLightTarget;
+spotLight.intensity = 1.5
+spotLight.angle = Math.PI / 6
+spotLight.distance = 3
+// spotLight.decay = 1
+
+const backLightTarget = new THREE.Object3D()
+backLightTarget.position.set(-0.025, 0, 0)
 
 const backLight = new THREE.SpotLight( 0xffffff );
-backLight.position.set( -0.4, 1, -0.5 );
-backLight.lookAt(0, 0, -2.5)
+backLight.position.set( -0.15, 0.25, -0.3 );
+backLight.target = backLightTarget
 // backLight.intensity = 20
-backLight.intensity = 2
+backLight.intensity = 0.25
+spotLight.distance = 1
 backLight.angle = Math.PI / 8
 
 // const ambientLight = new THREE.AmbientLight( 0xffffff );
 // ambientLight.intensity = 20
 
 
-// const spotHelper = new THREE.SpotLightHelper(backLight)
+const spotHelper = new THREE.SpotLightHelper(backLight)
 // scene.add(spotHelper)
 
-scene.add( sceneGroup, spotLight, backLight );
+scene.add( sceneGroup, spotLight, spotLightTarget, backLight, backLightTarget );
 // scene.add( sceneGroup );
 
 
