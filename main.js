@@ -54,7 +54,7 @@ const renderer = new THREE.WebGLRenderer({
   // powerPreference: "high-performance",
   outputColorSpace: THREE.SRGBColorSpace,
   // logarithmicDepthBuffer: true,
-  physicallyCorrectLights: true,
+  // physicallyCorrectLights: true,
   shadowMap: {
     enabled: false,
   },
@@ -68,8 +68,8 @@ const controls = new OrbitControls( camera, renderer.domElement );
 // controls.enableZoom = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
-controls.maxPolarAngle = Math.PI / 2
-controls.minPolarAnge = 0
+controls.maxPolarAngle = Math.PI / 1.5
+controls.minPolarAngle = Math.PI / 6
 
 
 
@@ -134,7 +134,7 @@ loader.load('/Aventus_Baked.glb', (glb) => {
   bottle.material = new THREE.MeshPhysicalMaterial({ 
     side: THREE.DoubleSide,
     // metalness: 1,
-    roughness: 4,
+    roughness: 5,
     // envMapIntensity: 0.05,
     normalScale: new THREE.Vector2(1, -1),
   })
@@ -182,8 +182,8 @@ loader.load('/Aventus_Baked.glb', (glb) => {
 
     bottle.material.envMap = envMap
     glass.material.envMap = envMap
-    bottle.material.envMapIntensity = 0.3
-    glass.material.envMapIntensity = 0.3
+    bottle.material.envMapIntensity = 0.025
+    // glass.material.envMapIntensity = 0.5
 
     bottle.material.needsUpdate = true
     glass.material.needsUpdate = true
@@ -311,17 +311,17 @@ loader.load('/Aventus_Baked.glb', (glb) => {
 
 // Lights
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 1, 0.6, 1 );
-spotLight.lookAt(-0.2, -0.6, 0)
+spotLight.position.set( 1, 1, 1 );
+spotLight.lookAt(-0.1, 0.5, 0)
 // spotLight.intensity = 15
-spotLight.intensity = 2
-spotLight.angle = Math.PI / 4
+spotLight.intensity = 0.75
+spotLight.angle = Math.PI / 8
 
 const backLight = new THREE.SpotLight( 0xffffff );
 backLight.position.set( -0.4, 1, -0.5 );
 backLight.lookAt(0, 0, -2.5)
 // backLight.intensity = 20
-backLight.intensity = 0.1
+backLight.intensity = 2
 backLight.angle = Math.PI / 8
 
 // const ambientLight = new THREE.AmbientLight( 0xffffff );
