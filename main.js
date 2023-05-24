@@ -141,17 +141,17 @@ loader.load('/Aventus.glb', (glb) => {
 
   const loadTextures = () => {
 
-    const colorMap = textureLoader.load('textures/baked/T_DefaultMaterial_B.png', (texture) => {
+    const colorMap = textureLoader.load('textures/T_DefaultMaterial_B.png', (texture) => {
       texture.flipY = false
       texture.colorSpace = THREE.SRGBColorSpace
     })
 
-    const mraMap = textureLoader.load('textures/baked/T_DefaultMaterial_MRA.png', (texture) => {
+    const mraMap = textureLoader.load('textures/T_DefaultMaterial_MRA.png', (texture) => {
       texture.flipY = false
       texture.colorSpace = THREE.SRGBColorSpace
     }) 
 
-    const normalMap = textureLoader.load('textures/baked/T_DefaultMaterial_N.png', (texture) => {
+    const normalMap = textureLoader.load('textures/T_DefaultMaterial_N.png', (texture) => {
       texture.flipY = false
       texture.colorSpace = THREE.SRGBColorSpace
       // texture.magFilter = THREE.NearestFilter
