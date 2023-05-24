@@ -62,7 +62,7 @@ window.addEventListener("resize", () => {
 
 // Camera Animation
 const lockCamera = () => {
-  orbitTarget = new THREE.Vector3(0, 0, -0.2)
+  orbitTarget = new THREE.Vector3(cameraTarget.x, cameraTarget.y, - cameraTarget.z)
   controls.enabled = false
 }
 
