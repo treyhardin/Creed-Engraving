@@ -398,10 +398,6 @@ const updateText = (text, line, positionY) => {
 
 }
 
-const animateCamera = () => {
-
-}
-
 // Animate
 function animate() {
 
