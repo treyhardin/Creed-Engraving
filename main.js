@@ -120,7 +120,7 @@ const sceneGroup = new THREE.Group
 
 
 
-loader.load('/Aventus.glb', (glb) => {
+loader.load('/aventus.glb', (glb) => {
 
   model = glb.scene
 
