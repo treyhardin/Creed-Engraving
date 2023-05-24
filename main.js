@@ -120,7 +120,7 @@ const sceneGroup = new THREE.Group
 
 
 
-loader.load('/Aventus_Baked.glb', (glb) => {
+loader.load('/Aventus.glb', (glb) => {
 
   model = glb.scene
 
@@ -329,7 +329,7 @@ const backLight = new THREE.SpotLight( 0xffffff );
 backLight.position.set( -0.15, 0.25, -0.3 );
 backLight.target = backLightTarget
 // backLight.intensity = 20
-backLight.intensity = 0.25
+backLight.intensity = 0.75
 spotLight.distance = 1
 backLight.angle = Math.PI / 8
 
