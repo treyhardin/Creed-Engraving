@@ -7,44 +7,19 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
+THREE.ColorManagement.enabled = true;
+const cursor = document.querySelector('#custom-cursor')
+
 // Scene
 const container = document.querySelector('#app')
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#000000')
-THREE.ColorManagement.enabled = true;
 
 // Camera
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 20 );
-
-camera.position.set(0, 0, 0.2);
+let cameraTarget = new THREE.Vector3(0, 0, 0.15);
+camera.position.copy(cameraTarget)
 camera.rotation.x = 0;
-let cameraTarget = new THREE.Vector3(0, 0, 0.2);
-let cameraLocked = false;
-
-// Toggle Preview
-const previewButton = document.querySelector('#preview-button')
-
-const lockCamera = () => {
-  cameraLocked = true;
-  cameraTarget = new THREE.Vector3(-0.02, -0.01, -0.09);
-  controls.enabled = false;
-  previewButton.innerHTML = 'Exit'
-}
-
-const unlockCamera = () => {
-  cameraTarget = new THREE.Vector3(0, 0, 0.2);
-  controls.enabled = true;
-  previewButton.innerHTML = 'Preview'
-  setTimeout(() => {
-    cameraLocked = false
-  }, 1000)
-}
-
-const handlePreviewClick = () => {
-  cameraLocked ? unlockCamera() : lockCamera()
-}
-
-previewButton.addEventListener("click", handlePreviewClick)
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -65,6 +40,11 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI / 1.5
 controls.minPolarAngle = Math.PI / 6
+controls.autoRotate = true
+controls.autoRotateSpeed = 1
+controls.update()
+
+let orbitTarget
 
 // Resize
 const handleResize = () => {
@@ -74,13 +54,61 @@ const handleResize = () => {
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-// document.addEventListener('focusout', handleResize)
-
 handleResize();
 
 window.addEventListener("resize", () => {
   handleResize()
 })
+
+// Camera Animation
+const lockCamera = () => {
+  orbitTarget = new THREE.Vector3(0, 0, -0.2)
+  controls.enabled = false
+}
+
+const unlockCamera = () => {
+  orbitTarget = null
+  controls.enabled = true
+}
+
+// Custom Cursor
+
+const moveCustomCursor = (e) => {
+
+  const posX = e.pageX
+  const posY = e.pageY
+
+  cursor.style.top = posY + 'px'
+  cursor.style.left = posX + 'px'
+
+  const windowX = posX / window.innerWidth
+  const windowY = posY / window.innerHeight
+
+  const threshold = .3
+
+  threshold < windowX < 1 - threshold
+
+  if ( threshold > windowX || windowX > 1 - threshold || threshold > windowY || windowY > 1 - threshold) {
+    cursor.classList.add('hidden')
+  } else {
+    cursor.classList.remove('hidden')
+  }
+
+}
+
+const handleMouseDown = (e) => {
+  cursor.classList.add('clicked')
+  container.style.cursor = 'grabbing'
+}
+
+const handleMouseUp = (e) => {
+  cursor.classList.remove('clicked')
+  container.style.cursor = 'grab'
+}
+
+window.addEventListener("mousemove", moveCustomCursor)
+window.addEventListener("mousedown", handleMouseDown)
+window.addEventListener("mouseup", handleMouseUp)
 
 // Loading Manager
 const preloader = document.querySelector('#preloader')
@@ -119,10 +147,13 @@ loader.load('/aventus.glb', (glb) => {
   const bottle = meshes[0]
   const glass = meshes[1]
 
+  bottle.geometry.computeVertexNormals(true);
+  glass.geometry.computeVertexNormals(true);
+
   bottle.material = new THREE.MeshPhysicalMaterial({ 
     side: THREE.DoubleSide,
     roughness: 5,
-    // envMapIntensity: 0.05,
+    flatShading: false,
     normalScale: new THREE.Vector2(1, -1),
   })
 
@@ -176,6 +207,7 @@ loader.load('/aventus.glb', (glb) => {
 
   loadTextures()
 
+  model.position.y = -0.01
   sceneGroup.add(model)
 
 }, undefined, function ( error ) {
@@ -192,7 +224,6 @@ spotLight.target = spotLightTarget;
 spotLight.intensity = 1.5
 spotLight.angle = Math.PI / 6
 spotLight.distance = 3
-// spotLight.decay = 1
 
 const backLightTarget = new THREE.Object3D()
 backLightTarget.position.set(-0.025, 0, 0)
@@ -211,7 +242,6 @@ scene.add( sceneGroup, spotLight, spotLightTarget, backLight, backLightTarget );
 // scene.add( sceneGroup );
 
 
-
 // Load Font
 const fontLoader = new FontLoader();
 
@@ -228,20 +258,22 @@ textMaterial = new THREE.MeshBasicMaterial({
 // Update Engraving
 const updateLine1 = () => {
   lockCamera()
-  updateText(engravingTextLine1.value, 1, 0.02)
+  updateText(engravingTextLine1.value, 1, 0.008)
 }
 
 const updateLine2 = () => {
   lockCamera()
-  updateText(engravingTextLine2.value, 2, 0.014)
+  updateText(engravingTextLine2.value, 2, 0.001)
 }
 
 // Live Text Input
 const engravingTextLine1 = document.querySelector('#engraving-text-line1')
 engravingTextLine1.addEventListener("input", updateLine1)
+engravingTextLine1.addEventListener("blur", unlockCamera)
 
 const engravingTextLine2 = document.querySelector('#engraving-text-line2')
 engravingTextLine2.addEventListener("input", updateLine2)
+engravingTextLine2.addEventListener("blur", unlockCamera)
 
 // Live Text Font
 const engravingFont = document.querySelector('#engraving-font')
@@ -287,7 +319,7 @@ const updateText = (text, line, positionY) => {
 
     mesh.position.x = center.x
     mesh.position.y = positionY
-    mesh.position.z = -0.014
+    mesh.position.z = -0.016
     mesh.rotateY(Math.PI)
 
     scene.add(mesh)
@@ -329,15 +361,16 @@ const updateText = (text, line, positionY) => {
 }
 
 // Animate
-function animate() {
+function animate() { 
 
-  if (cameraLocked) {
-    camera.position.lerp(cameraTarget, 0.1);
+  if (orbitTarget) {
+    controls.object.position.lerp( orbitTarget, 0.1 );
   }
   
   controls.update();
 	renderer.render( scene, camera );
-	requestAnimationFrame( animate );
+
+  requestAnimationFrame( animate );
 }
 animate();
 

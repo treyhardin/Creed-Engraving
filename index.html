@@ -21,9 +21,16 @@
       </select>
       <input id="engraving-text-line1" maxlength="20" placeholder="Line 1"/>
       <input id="engraving-text-line2" maxlength="20" placeholder="Line 2"/>
-      <button type="button" id="preview-button">Preview</button>
     </form>
     <div id="app"></div>
     <script type="module" src="/main.js"></script>
+    <div id="custom-cursor" class="hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 15 13">
+        <path stroke="currentColor" stroke-width="1.314" d="M14.414 6.728H1.934m4.598 5.582L.95 6.728l5.583-5.583"/>
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 15 13">
+        <path stroke="currentColor" stroke-width="1.314" d="M.414 6.728h12.48M8.296 1.145l5.583 5.582-5.583 5.583"/>
+      </svg>
+    </div>
   </body>
 </html>

@@ -13,6 +13,7 @@ body {
   height: 100%;
   min-width: 100%;
   min-height: 100dvh;
+  cursor: grab;
 }
 
 .engraving-options {
@@ -63,4 +64,34 @@ body {
   background-color: white;
   width: 0%;
   transition: width 0.3s ease-out;
+}
+
+#custom-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: white;
+  color: #191919;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 120px;
+  padding: 18px 30px;
+  border-radius: 100vw;
+  pointer-events: none;
+  transition: opacity .3s ease-out, width 0.1s ease-out;
+  opacity: 1;
+  transform: translate(-50%, 30px);
+}
+
+#custom-cursor.clicked {
+  width: 110px;
+}
+
+#custom-cursor.hidden {
+  opacity: 0;
+}
+
+#custom-cursor svg {
+  width: 12px;
 }
