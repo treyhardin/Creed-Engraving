@@ -57,7 +57,7 @@ const handleResize = () => {
 handleResize();
 
 window.addEventListener("resize", handleResize)
-window.visualViewport.addEventListener('resize', handleResize);
+// window.visualViewport.addEventListener('resize', handleResize);
 
 
 // Camera Animation
