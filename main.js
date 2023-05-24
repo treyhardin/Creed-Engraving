@@ -50,9 +50,7 @@ previewButton.addEventListener("click", handlePreviewClick)
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   toneMapping: THREE.ACESFilmicToneMapping,
-  powerPreference: "high-performance",
   outputColorSpace: THREE.SRGBColorSpace,
-  logarithmicDepthBuffer: true,
   shadowMap: {
     enabled: false,
   },
@@ -65,10 +63,8 @@ const controls = new OrbitControls( camera, renderer.domElement );
 controls.enableZoom = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
-controls.maxPolarAngle = Math.PI / 2
-controls.minPolarAnge = 0
-
-
+controls.maxPolarAngle = Math.PI / 1.5
+controls.minPolarAngle = Math.PI / 6
 
 // Resize
 const handleResize = () => {
@@ -85,7 +81,6 @@ handleResize();
 window.addEventListener("resize", () => {
   handleResize()
 })
-
 
 // Loading Manager
 const preloader = document.querySelector('#preloader')
@@ -112,7 +107,7 @@ const hdrLoader = new RGBELoader(loadingManager);
 
 
 // Load Model
-let model, envMap;
+let model;
 const sceneGroup = new THREE.Group
 
 loader.load('/aventus.glb', (glb) => {
@@ -120,165 +115,100 @@ loader.load('/aventus.glb', (glb) => {
   model = glb.scene
 
   const meshes = model.children[0].children
-  
-  // Cap
-  let cap = meshes[6]
-  cap.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.2,
-    metalness: 0.8,
-    color: new THREE.Color('#000000')
-    // color: new THREE.Color('#1C1C1C')
-  })
 
+  const bottle = meshes[0]
+  const glass = meshes[1]
 
-  // Cap Top
-  let capTop = meshes[5]
-  capTop.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.2,
-    color: new THREE.Color('#090909'),
-  })
-
-  textureLoader.load('textures/logo_NORMAL.png', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    capTop.material.normalMap = texture
-  })
-  
-  // Label Front
-  let labelFront = meshes[1]
-  labelFront.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#f0f0f0'),
-    normalScale: new THREE.Vector2(0.2, 0.2),
-    metalness: 1,
-    roughness: 0.1,
-  })
-
-  textureLoader.load('textures/T_AVENTUS_HOURSE_B.jpg', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    labelFront.material.map = texture
-  })
-
-  textureLoader.load('/textures/T_AVENTUS_HOURSE_MRA.png', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    labelFront.material.roughnessMap = texture
-    labelFront.material.metalnessMap = texture
-  })
-
-
-  // Logo
-  let logo = meshes[2]
-  logo.material = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.4,
-    metalness: 0.9,
-    // color: new THREE.Color('#191919'),
-    color: new THREE.Color('#000000'),
-    normalScale: new THREE.Vector2(0.1, 0.1),
-  })
-
-  // Glass
-  let glass = meshes[0]
-  glass.material = new THREE.MeshPhysicalMaterial({ 
-    // color: new THREE.Color('#f6f6f6'),
-    roughness: 0.05,  
-    // transmission: 0.95,
-    transmission: 0.999,  
-    metalness: 0,
-    // thickness: 0.01,
-    normalScale: new THREE.Vector2(0.05, 0.05),
-  })
-
-  // Label Back
-  let labelBack = meshes[3]
-  labelBack.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#232323'),
-    normalScale: new THREE.Vector2(0.1, 0.1),
-  })
-
-  textureLoader.load('/textures/T_Backplate_B.jpg', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    labelBack.material.map = texture
-  })
-
-  textureLoader.load('/textures/T_Backplate_MRA.jpg', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    labelBack.material.roughnessMap = texture
-    labelBack.material.metalnessMap = texture
-  })
-
-  // Foil
-  let foil = meshes[4]
-  foil.material = new THREE.MeshPhysicalMaterial({ 
-    color: new THREE.Color('#090909'),
-    normalScale: new THREE.Vector2(0.4, 0.4),
+  bottle.material = new THREE.MeshPhysicalMaterial({ 
+    side: THREE.DoubleSide,
     roughness: 5,
-    metalness: 1,
-    side: THREE.DoubleSide
+    // envMapIntensity: 0.05,
+    normalScale: new THREE.Vector2(1, -1),
   })
 
-  textureLoader.load('/textures/T_Material_001_MRA.jpg', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    foil.material.roughnessMap = texture
-    foil.material.metalnessMap = texture
-  })
+  const loadTextures = () => {
 
-  textureLoader.load('/textures/T_Material_001_N.png', (texture) => {
-    texture.flipY = false
-    texture.colorSpace = THREE.SRGBColorSpace
-    foil.material.normalMap = texture
-    capTop.material.normalMap= texture
-  })
-
-  // Environment
-  
-  hdrLoader.load('/env_studio.hdr', (texture) => {
-
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.magFilter = THREE.NearestFilter
-    envMap = texture
-    meshes.forEach((mesh) => {
-      mesh.material.envMap = envMap
-      mesh.material.envMapIntensity = 1
+    const colorMap = textureLoader.load('textures/T_DefaultMaterial_B.png', (texture) => {
+      texture.flipY = false
+      texture.colorSpace = THREE.SRGBColorSpace
     })
-  })
+
+    const mraMap = textureLoader.load('textures/T_DefaultMaterial_MRA.png', (texture) => {
+      texture.flipY = false
+      texture.colorSpace = THREE.SRGBColorSpace
+    }) 
+
+    const normalMap = textureLoader.load('textures/T_DefaultMaterial_N.png', (texture) => {
+      texture.flipY = false
+      texture.colorSpace = THREE.SRGBColorSpace
+    }) 
+
+    const envMap = hdrLoader.load('/env_studio.hdr', (texture) => {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+    })
+
+
+    // Glass
+    glass.material = new THREE.MeshPhysicalMaterial({
+      roughness: 0.05,
+      transmission: 0.999,
+      metalness: 0,
+      normalScale: new THREE.Vector2(0.05, 0.05),
+    })
+
+    bottle.material.map = colorMap
+
+    bottle.material.roughnessMap = mraMap
+    bottle.material.metalnessMap = mraMap
+
+    bottle.material.normalMap = normalMap;
+    glass.material.normalMap = normalMap
+
+    bottle.material.envMap = envMap
+    glass.material.envMap = envMap
+    bottle.material.envMapIntensity = 0.2
+    // glass.material.envMapIntensity = 0.5
+
+    bottle.material.needsUpdate = true
+    glass.material.needsUpdate = true
+
+  }
+
+  loadTextures()
 
   sceneGroup.add(model)
-  // sceneGroup.position.y = -0.06;
 
 }, undefined, function ( error ) {
 	console.error( error );
 } );
 
 // Lights
+const spotLightTarget = new THREE.Object3D()
+spotLightTarget.position.set(-0.1, 0, 0)
+
 const spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 1, 0.6, 1 );
-spotLight.lookAt(-0.2, -0.6, 0)
-// spotLight.intensity = 15
-spotLight.intensity = 5
-spotLight.angle = Math.PI / 4
+spotLight.position.set( 0.2, 0.2, 0.2 );
+spotLight.target = spotLightTarget;
+spotLight.intensity = 1.5
+spotLight.angle = Math.PI / 6
+spotLight.distance = 3
+// spotLight.decay = 1
+
+const backLightTarget = new THREE.Object3D()
+backLightTarget.position.set(-0.025, 0, 0)
 
 const backLight = new THREE.SpotLight( 0xffffff );
-backLight.position.set( -0.4, 0.5, -0.5 );
-backLight.lookAt(0, 0, -2.5)
-// backLight.intensity = 20
-backLight.intensity = 10
+backLight.position.set( -0.15, 0.25, -0.3 );
+backLight.target = backLightTarget
+backLight.intensity = 0.75
+spotLight.distance = 1
 backLight.angle = Math.PI / 8
-
-// const ambientLight = new THREE.AmbientLight( 0xffffff );
-// ambientLight.intensity = 20
-
 
 // const spotHelper = new THREE.SpotLightHelper(backLight)
 // scene.add(spotHelper)
 
-scene.add( sceneGroup, spotLight, backLight );
+scene.add( sceneGroup, spotLight, spotLightTarget, backLight, backLightTarget );
+// scene.add( sceneGroup );
 
 
 
@@ -395,10 +325,6 @@ const updateText = (text, line, positionY) => {
   if (currentFont == 'carattere' && carattereFont) {
     createTextGeometry(carattereFont, mesh)
   }
-
-}
-
-const animateCamera = () => {
 
 }
 
