@@ -310,7 +310,7 @@ const updateText = (text, line, positionY) => {
     // Offset Vertices to Avoid Clipping
     const vertices = textGeometry.attributes.position.array
     for(let i = 0; i < textGeometry.attributes.position.count; i++){
-      vertices[ i * 3 + 2 ] -= Math.abs(vertices[ i * 3 + 0 ]) * 0.13
+      vertices[ i * 3 + 2 ] -= Math.abs(vertices[ i * 3 + 0 ]) ** 1.55
     }
     textGeometry.attributes.position.needsUpdate = true;
 
