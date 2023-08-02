@@ -258,12 +258,12 @@ textMaterial = new THREE.MeshBasicMaterial({
 // Update Engraving
 const updateLine1 = () => {
   lockCamera()
-  updateText(engravingTextLine1.value, 1, 0.008)
+  updateText(engravingTextLine1.value, 1, 0.006)
 }
 
 const updateLine2 = () => {
   lockCamera()
-  updateText(engravingTextLine2.value, 2, 0.001)
+  updateText(engravingTextLine2.value, 2, 0.002)
 }
 
 // Live Text Input
@@ -299,7 +299,7 @@ const updateText = (text, line, positionY) => {
 
     const textGeometry = new TextGeometry( text, {
       font: font,
-      size: 0.004,
+      size: 0.002,
       height: 0.0001,
       curveSegments: 12,
     } );
