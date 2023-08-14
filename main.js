@@ -6,6 +6,8 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { Flow } from 'three/addons/modifiers/CurveModifier.js';
+import { MeshBasicMaterial } from 'three';
 
 THREE.ColorManagement.enabled = true;
 const cursor = document.querySelector('#custom-cursor')
@@ -239,8 +241,6 @@ backLight.angle = Math.PI / 8
 // scene.add(spotHelper)
 
 scene.add( sceneGroup, spotLight, spotLightTarget, backLight, backLightTarget );
-// scene.add( sceneGroup );
-
 
 // Load Font
 const fontLoader = new FontLoader();
@@ -258,12 +258,12 @@ textMaterial = new THREE.MeshBasicMaterial({
 // Update Engraving
 const updateLine1 = () => {
   lockCamera()
-  updateText(engravingTextLine1.value, 1, 0.008)
+  updateText(engravingTextLine1.value, 1, 0.006)
 }
 
 const updateLine2 = () => {
   lockCamera()
-  updateText(engravingTextLine2.value, 2, 0.001)
+  updateText(engravingTextLine2.value, 2, 0.002)
 }
 
 // Live Text Input
@@ -284,7 +284,7 @@ engravingFont.addEventListener("change", () => {
 
 const updateText = (text, line, positionY) => {
 
-  let mesh
+  let mesh, flow
   currentFont = engravingFont.value
 
   if (line == 1 && textMeshLine1) {
@@ -299,30 +299,34 @@ const updateText = (text, line, positionY) => {
 
     const textGeometry = new TextGeometry( text, {
       font: font,
-      size: 0.004,
+      size: 0.002,
       height: 0.0001,
       curveSegments: 12,
     } );
 
+    textGeometry.center();
+    textGeometry.rotateY(Math.PI);
+
+    // Offset Vertices to Avoid Clipping
+    const vertices = textGeometry.attributes.position.array
+    for(let i = 0; i < textGeometry.attributes.position.count; i++){
+      vertices[ i * 3 + 2 ] -= Math.abs(vertices[ i * 3 + 0 ]) ** 1.55
+    }
+    textGeometry.attributes.position.needsUpdate = true;
+
     if (line == 1) {
-      textMeshLine1 = mesh = new THREE.Mesh(textGeometry, textMaterial)
-      mesh = textMeshLine1
+      textMeshLine1 = mesh = new THREE.Mesh(textGeometry, textMaterial);
+      mesh = textMeshLine1;
     }
 
     if (line == 2) {
-      textMeshLine2 = mesh = new THREE.Mesh(textGeometry, textMaterial)
-      mesh = textMeshLine2
+      textMeshLine2 = mesh = new THREE.Mesh(textGeometry, textMaterial);
+      mesh = textMeshLine2;
     }
 
-    textGeometry.computeBoundingBox();
-    const center = textGeometry.boundingBox.getCenter(new THREE.Vector3());
-
-    mesh.position.x = center.x
     mesh.position.y = positionY
-    mesh.position.z = -0.016
-    mesh.rotateY(Math.PI)
-
-    scene.add(mesh)
+    mesh.position.z = -0.0145
+    scene.add( mesh );
   }
 
   if (currentFont == 'garamond' && !garamondFont) {
